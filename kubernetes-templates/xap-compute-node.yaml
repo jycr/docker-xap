@@ -4,18 +4,18 @@ metadata:
   name: xap-node
   labels:
     app: xap-node
-    version: 12.0.1
+    version: 12.1.1
 spec:
   replicas: <num>
   selector:
     matchLabels:
       app: xap-node
-      version: 12.0.1
+      version: 12.1.1
   template:
     metadata:
       labels:
         app: xap-node
-        version: 12.0.1
+        version: 12.1.1
     spec:
       containers:
       - args:

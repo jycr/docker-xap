@@ -1,16 +1,14 @@
-FROM java:8
+FROM openjdk:8-jre-slim
 
-ENV XAP_VERSION 12.0.1
-ENV XAP_BUILD_NUMBER 16600
+ENV XAP_VERSION 12.1.1
+ENV XAP_BUILD_NUMBER 17100
 ENV XAP_MILESTONE ga
 ENV XAP_HOME_DIR /opt/xap
-
-RUN mkdir -p ${XAP_HOME_DIR}
-
 # Download XAP
 ADD https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
 
-RUN unzip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip -d ${XAP_HOME_DIR} \
+RUN set -ex \
+    && unzip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip -d ${XAP_HOME_DIR} \
     && rm -f /tmp/gigaspaces-xap-premium-*.zip
 
 ENV XAP_HOME ${XAP_HOME_DIR}/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}

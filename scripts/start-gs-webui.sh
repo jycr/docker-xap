@@ -21,10 +21,10 @@ parse_input() {
 main() {
     parse_input "$@"
 
-    docker build -t gigaspaces/xap:12.0.1 .
+    docker build -t gigaspaces/xap:12.1.1 .
     local cmd="docker run --name $name -d --net=host -e XAP_LICENSE_KEY=$license" 
     if [[ $locators ]]; then cmd+=" -e XAP_LOOKUP_LOCATORS=$locators"; fi
-    cmd+=" gigaspaces/xap:12.0.1 ./bin/gs-webui.sh"
+    cmd+=" gigaspaces/xap:12.1.1 ./bin/gs-webui.sh"
     $cmd
 }
 main "$@"

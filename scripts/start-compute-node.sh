@@ -27,10 +27,10 @@ parse_input() {
 main() {
     parse_input "$@"
 
-    docker build -t gigaspaces/xap:12.0.1 .
+    docker build -t gigaspaces/xap:12.1.1 .
     local cmd="docker run --name $name -d --net=host -e XAP_LICENSE_KEY=$license -e XAP_LOOKUP_LOCATORS=$locators"
     if [[ $gsc_options ]]; then cmd+=" -e XAP_GSC_OPTIONS=$gsc_options"; fi
-    cmd+=" gigaspaces/xap:12.0.1 gsa.global.lus 0 gsa.lus 0 gsa.global.gsm 0 gsa.gsm 0 gsa.gsc ${gsc_count=0}"
+    cmd+=" gigaspaces/xap:12.1.1 gsa.global.lus 0 gsa.lus 0 gsa.global.gsm 0 gsa.gsm 0 gsa.gsc ${gsc_count=0}"
     $cmd
 }
 main "$@"

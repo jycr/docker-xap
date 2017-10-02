@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   labels:
     app: xap-mgt-node
-    version: 12.0.1
+    version: 12.1.1
   name: xap-mgt-node
 spec:
   ports:
@@ -12,5 +12,5 @@ spec:
       protocol: TCP
   selector:
     app: xap-mgt-node
-    version: 12.0.1
+    version: 12.1.1
   type: ClusterIP
