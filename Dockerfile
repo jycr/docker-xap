@@ -9,7 +9,8 @@ ADD https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_V
 
 RUN set -ex \
     && unzip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip -d ${XAP_HOME_DIR} \
-    && rm -f /tmp/gigaspaces-xap-premium-*.zip
+    && rm -f /tmp/gigaspaces-xap-premium-*.zip \
+    && rm -rf ${XAP_HOME_DIR}/*/{examples,tools}/ ${XAP_HOME_DIR}/*/START_HERE.htm ${XAP_HOME_DIR}/*/NOTICE.md
 
 ENV XAP_HOME ${XAP_HOME_DIR}/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}
 ENV XAP_NIC_ADDRESS "#eth0:ip#"
