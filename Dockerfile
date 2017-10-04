@@ -1,4 +1,5 @@
-FROM openjdk:8-jre-slim
+FROM openjdk:8-jdk-slim
+# JDK is needed to execute GS Webui
 
 ENV XAP_VERSION 12.1.1
 ENV XAP_BUILD_NUMBER 17100
