@@ -36,11 +36,24 @@ ENV XAP_LOOKUP_GROUPS xap
 ENV XAP_WEBUI_OPTIONS "${EXT_JAVA_OPTIONS}"
 ENV WEBUI_PORT 8099
 
+RUN set -ex \
+    && apt-get update && apt-get install -y \
+        apache2 \
+        curl \
+        netcat-openbsd \
+        procps \
+        vim
+
+COPY ./xap-manager.conf /etc/apache2/sites-available/
+RUN a2enmod proxy_http \
+    && a2ensite xap-manager.conf \
+    && service apache2 restart
+
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 WORKDIR ${XAP_HOME_DIR}
 
-EXPOSE 10000-10100 9104 7102 4174 8099 8090
+EXPOSE 10000-10100 9104 7102 4174 8090 8099
 
 CMD ["./bin/gs-agent.sh"]
