@@ -11,7 +11,7 @@ ADD https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_V
 RUN set -ex \
     && unzip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip -d /tmp/xap_uncompress \
 	&& mv /tmp/xap_uncompress/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
-    && rm -f /tmp/gigaspaces-xap-premium-*.zip /tmp/xap_uncompress \
+    && rm -rf /tmp/gigaspaces-xap-premium-*.zip /tmp/xap_uncompress \
     && rm -rf ${XAP_HOME_DIR}/{examples,tools}/ ${XAP_HOME_DIR}/START_HERE.htm ${XAP_HOME_DIR}/NOTICE.md
 
 ENV XAP_NIC_ADDRESS "#eth0:ip#"
