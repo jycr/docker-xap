@@ -23,7 +23,7 @@ RUN set -ex \
         ${XAP_HOME_DIR}/{examples,tools}/ \
         ${XAP_HOME_DIR}/START_HERE.htm \
         ${XAP_HOME_DIR}/NOTICE.md \
-    && apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) \
+    && apt-get remove --purge -y $BUILD_PACKAGES \
     && rm -rf /var/lib/apt/lists/*
 
 ENV XAP_NIC_ADDRESS "#eth0:ip#"
