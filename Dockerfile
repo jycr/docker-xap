@@ -5,18 +5,26 @@ ENV XAP_VERSION 12.1.1
 ENV XAP_BUILD_NUMBER 17100
 ENV XAP_MILESTONE ga
 ENV XAP_HOME_DIR /opt/xap
+
 # Download XAP
-ADD https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
+ENV XAP_DOWNLOAD_URL https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
+
+ENV BUILD_PACKAGES=curl
 
 RUN set -ex \
-    && unzip /tmp/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip -d /tmp/xap_uncompress \
-    && mv /tmp/xap_uncompress/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
+    && apt-get update && apt-get install -y \
+           $BUILD_PACKAGES \
+    && curl -fSL "${XAP_DOWNLOAD_URL}" -o /tmp/xap.zip \
+    && unzip /tmp/xap.zip -d /tmp/xap_unzip \
+    && mv /tmp/xap_unzip/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
     && rm -rf \
-        /tmp/gigaspaces-xap-premium-*.zip \
-        /tmp/xap_uncompress \
+        /tmp/xap.zip \
+        /tmp/xap_unzip \
         ${XAP_HOME_DIR}/{examples,tools}/ \
         ${XAP_HOME_DIR}/START_HERE.htm \
-        ${XAP_HOME_DIR}/NOTICE.md
+        ${XAP_HOME_DIR}/NOTICE.md \
+    && apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV XAP_NIC_ADDRESS "#eth0:ip#"
 ENV EXT_JAVA_OPTIONS "-Dcom.gs.multicast.enabled=false -Dcom.gs.multicast.discoveryPort=4174 -Dcom.gs.transport_protocol.lrmi.bind-port=10000-10100 -Dcom.gigaspaces.start.httpPort=9104 -Dcom.gigaspaces.system.registryPort=7102"
