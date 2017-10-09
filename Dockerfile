@@ -47,7 +47,7 @@ RUN set -ex \
 COPY ./xap-manager.conf /etc/apache2/sites-available/
 RUN a2enmod proxy_http \
     && a2ensite xap-manager.conf \
-    && service apache2 restart
+    && service apache2 stop
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
