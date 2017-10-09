@@ -56,4 +56,4 @@ WORKDIR ${XAP_HOME_DIR}
 
 EXPOSE 10000-10100 9104 7102 4174 8090 8099
 
-CMD ["./bin/gs-agent.sh"]
+CMD ["apache2ctl start && ./bin/gs-agent.sh"]
