@@ -38,11 +38,27 @@ ENV WEBUI_PORT 8099
 
 RUN set -ex \
     && apt-get update && apt-get install -y \
-        apache2 \
+		apache2 \
         curl \
+        gnupg \
         netcat-openbsd \
         procps \
-        vim
+		vim
+
+RUN curl -sL https://packagecloud.io/gpg.key | apt-key add - \
+	&& curl -sL https://repos.influxdata.com/influxdb.key | apt-key add - \
+	&& source /etc/os-release \
+	&& echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" | tee /etc/apt/sources.list.d/influxdb.list \
+	&& echo "deb https://repos.influxdata.com/debian jessie stable" | tee /etc/apt/sources.list.d/influxdb.list \
+	&& apt-get update && apt-get install -y \
+		influxdb \
+		grafana \
+	&& systemctl daemon-reload \
+	&& systemctl start grafana-server \
+	&& systemctl start influxdb \
+	&& systemctl enable grafana-server.service \
+	&& systemctl enable influxdb.service
+
 
 COPY ./xap-manager.conf /etc/apache2/sites-available/
 RUN a2enmod proxy_http \
@@ -56,4 +72,4 @@ WORKDIR ${XAP_HOME_DIR}
 
 EXPOSE 10000-10100 9104 7102 4174 8090 8099
 
-CMD ["apache2ctl start && ./bin/gs-agent.sh"]
+CMD ["/etc/init.d/apache2 start && ./bin/gs-agent.sh"]
