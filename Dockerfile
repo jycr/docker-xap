@@ -45,19 +45,28 @@ RUN set -ex \
         procps \
 		vim
 
-RUN curl -sL https://packagecloud.io/gpg.key | apt-key add - \
-	&& curl -sL https://repos.influxdata.com/influxdb.key | apt-key add - \
-	&& source /etc/os-release \
-	&& echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" | tee /etc/apt/sources.list.d/influxdb.list \
-	&& echo "deb https://repos.influxdata.com/debian jessie stable" | tee /etc/apt/sources.list.d/influxdb.list \
-	&& apt-get update && apt-get install -y \
-		influxdb \
-		grafana \
-	&& systemctl daemon-reload \
-	&& systemctl start grafana-server \
-	&& systemctl start influxdb \
-	&& systemctl enable grafana-server.service \
-	&& systemctl enable influxdb.service
+# RUN set -x \
+# 	&& curl -sL https://packagecloud.io/gpg.key > packagecloud.key \
+# 	&& apt-key add packagecloud.key \
+# 	&& rm packagecloud.key \
+# 	&& curl -sL https://repos.influxdata.com/influxdb.key > influxdb.key \
+# 	&& apt-key add influxdb.key \
+# 	&& rm influxdb.key
+# 
+# RUN set -x \
+# 	&& . /etc/os-release \
+# 	&& echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" >> /etc/apt/sources.list.d/influxdb.list \
+# 	&& echo "deb https://repos.influxdata.com/debian jessie stable" >> /etc/apt/sources.list.d/influxdb.list \
+# 	&& apt-get update && apt-get install -y \
+# 			influxdb \
+# 			grafana \
+# 	
+# RUN set -x \
+# 	&& systemctl daemon-reload \
+# 	&& systemctl start grafana-server \
+# 	&& systemctl start influxdb \
+# 	&& systemctl enable grafana-server.service \
+# 	&& systemctl enable influxdb.service
 
 
 COPY ./xap-manager.conf /etc/apache2/sites-available/
