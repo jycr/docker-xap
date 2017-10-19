@@ -66,10 +66,16 @@ RUN a2enmod proxy_http \
     && service apache2 stop
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY xap.sh /xap.sh
+
+RUN chmod +x \
+	/docker-entrypoint.sh \
+	/xap.sh
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 WORKDIR ${XAP_HOME_DIR}
 
 EXPOSE 10000-10100 9104 7102 4174 8090 8099
 
-CMD ["/etc/init.d/apache2 start && ./bin/gs-agent.sh"]
+CMD ["/xap.sh"]
