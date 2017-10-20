@@ -38,36 +38,11 @@ ENV WEBUI_PORT 8099
 
 RUN set -ex \
     && apt-get update && apt-get install -y \
-		apache2 \
+        apache2 \
         curl \
-        gnupg \
         netcat-openbsd \
         procps \
-		vim
-
-# RUN set -x \
-# 	&& curl -sL https://packagecloud.io/gpg.key > packagecloud.key \
-# 	&& apt-key add packagecloud.key \
-# 	&& rm packagecloud.key \
-# 	&& curl -sL https://repos.influxdata.com/influxdb.key > influxdb.key \
-# 	&& apt-key add influxdb.key \
-# 	&& rm influxdb.key
-# 
-# RUN set -x \
-# 	&& . /etc/os-release \
-# 	&& echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" >> /etc/apt/sources.list.d/influxdb.list \
-# 	&& echo "deb https://repos.influxdata.com/debian jessie stable" >> /etc/apt/sources.list.d/influxdb.list \
-# 	&& apt-get update && apt-get install -y \
-# 			influxdb \
-# 			grafana \
-# 	
-# RUN set -x \
-# 	&& systemctl daemon-reload \
-# 	&& systemctl start grafana-server \
-# 	&& systemctl start influxdb \
-# 	&& systemctl enable grafana-server.service \
-# 	&& systemctl enable influxdb.service
-
+        vim
 
 COPY ./xap-manager.conf /etc/apache2/sites-available/
 RUN a2enmod proxy_http \
@@ -85,6 +60,6 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 WORKDIR ${XAP_HOME_DIR}
 
-EXPOSE 10000-10100 9104 7102 4174 8090 8099
+EXPOSE 10000-10100 9104 7102 4174 8090 8091 8099
 
 CMD ["/xap.sh"]
