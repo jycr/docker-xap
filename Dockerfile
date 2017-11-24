@@ -52,6 +52,8 @@ RUN a2enmod proxy_http \
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY xap.sh /xap.sh
 
+COPY lib-ext/* /opt/xap/lib/platform/ext/
+
 RUN chmod +x \
 	/docker-entrypoint.sh \
 	/xap.sh
