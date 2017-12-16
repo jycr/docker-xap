@@ -7,7 +7,7 @@ ENV XAP_MILESTONE ga
 ENV XAP_HOME_DIR /opt/xap
 
 # Download XAP
-ENV XAP_DOWNLOAD_URL https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
+ENV XAP_DOWNLOAD_URL https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
 
 ENV BUILD_PACKAGES=curl
 
