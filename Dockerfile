@@ -1,13 +1,13 @@
 FROM openjdk:8-jdk-slim
 # JDK is needed to execute GS Webui
 
-ENV XAP_VERSION 12.1.1
-ENV XAP_BUILD_NUMBER 17100
+ENV XAP_VERSION 12.2.1
+ENV XAP_BUILD_NUMBER 18100
 ENV XAP_MILESTONE ga
 ENV XAP_HOME_DIR /opt/xap
 
 # Download XAP
-ENV XAP_DOWNLOAD_URL https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
+ENV XAP_DOWNLOAD_URL https://gigaspaces-repository-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
 
 ENV BUILD_PACKAGES=curl
 
