@@ -16,7 +16,7 @@ RUN set -ex \
            $BUILD_PACKAGES \
     && curl -fSL "${XAP_DOWNLOAD_URL}" -o /tmp/xap.zip \
     && unzip /tmp/xap.zip -d /tmp/xap_unzip \
-    && mv /tmp/xap_unzip/gigaspaces-xap-premium-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
+    && mv /tmp/xap_unzip/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
     && rm -rf \
         /tmp/xap.zip \
         /tmp/xap_unzip \
