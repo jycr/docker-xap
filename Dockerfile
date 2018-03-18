@@ -5,16 +5,21 @@ ENV XAP_VERSION 12.2.1
 ENV XAP_BUILD_NUMBER 18100
 ENV XAP_MILESTONE ga
 ENV XAP_HOME_DIR /opt/xap
+ENV JACOCO_HOME_DIR /opt/jacoco
 
 # Download XAP
-ENV XAP_DOWNLOAD_URL https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip
+ENV XAP_DOWNLOAD_URL "https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip"
+ENV JACOCO_VERSION="0.8.0"
+ENV JACOCO_DOWNLOAD_URL="http://search.maven.org/remotecontent?filepath=org/jacoco/org.jacoco.agent/${JACOCO_VERSION}/org.jacoco.agent-${JACOCO_VERSION}-runtime.jar"
 
 ENV BUILD_PACKAGES=curl
 
 RUN set -ex \
     && apt-get update && apt-get install -y \
            $BUILD_PACKAGES \
+    && mkdir -p "$JACOCO_HOME_DIR" \
     && curl -fSL "${XAP_DOWNLOAD_URL}" -o /tmp/xap.zip \
+    && curl -fSL "${JACOCO_DOWNLOAD_URL}" -o "$JACOCO_HOME_DIR/jacocoagent.jar" \
     && unzip /tmp/xap.zip -d /tmp/xap_unzip \
     && mv /tmp/xap_unzip/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
     && rm -rf \
@@ -51,10 +56,12 @@ RUN a2enmod proxy_http \
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY xap.sh /xap.sh
+COPY setenv.sh /opt/xap/bin/setenv.sh
 
 COPY lib-ext/* /opt/xap/lib/platform/ext/
 
 RUN chmod +x \
+    /opt/xap/bin/setenv.sh \
 	/docker-entrypoint.sh \
 	/xap.sh
 
