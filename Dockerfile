@@ -1,15 +1,16 @@
 FROM openjdk:8-jdk-slim
 # JDK is needed to execute GS Webui
 
-ENV XAP_VERSION 12.2.1
-ENV XAP_BUILD_NUMBER 18100
-ENV XAP_MILESTONE ga
-ENV XAP_HOME_DIR /opt/xap
+ENV PRODUCT_NAME=insightedge
+ENV PRODUCT_VERSION 12.3.0
+ENV PRODUCT_BUILD ga-b19000
+ENV PRODUCT_HOME_DIR /opt/xap
 ENV JACOCO_HOME_DIR /opt/jacoco
 
-# Download XAP
-ENV XAP_DOWNLOAD_URL "https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/xap/${XAP_VERSION}/${XAP_VERSION}/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER}.zip"
-ENV JACOCO_VERSION="0.8.0"
+# Download Product URL
+ENV DOWNLOAD_URL "https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/${PRODUCT_NAME}/${PRODUCT_VERSION}/${PRODUCT_VERSION}/gigaspaces-${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_BUILD}.zip"
+
+ENV JACOCO_VERSION="0.8.1"
 ENV JACOCO_DOWNLOAD_URL="http://search.maven.org/remotecontent?filepath=org/jacoco/org.jacoco.agent/${JACOCO_VERSION}/org.jacoco.agent-${JACOCO_VERSION}-runtime.jar"
 
 ENV BUILD_PACKAGES=curl
@@ -18,16 +19,16 @@ RUN set -ex \
     && apt-get update && apt-get install -y \
            $BUILD_PACKAGES \
     && mkdir -p "$JACOCO_HOME_DIR" \
-    && curl -fSL "${XAP_DOWNLOAD_URL}" -o /tmp/xap.zip \
     && curl -fSL "${JACOCO_DOWNLOAD_URL}" -o "$JACOCO_HOME_DIR/jacocoagent.jar" \
-    && unzip /tmp/xap.zip -d /tmp/xap_unzip \
-    && mv /tmp/xap_unzip/gigaspaces-xap-${XAP_VERSION}-${XAP_MILESTONE}-b${XAP_BUILD_NUMBER} $XAP_HOME_DIR \
+    && curl -fSL "${DOWNLOAD_URL}" -o /tmp/_product.zip \
+    && unzip /tmp/_product.zip -d /tmp/_product_unzip \
+    && mv /tmp/_product_unzip/gigaspaces-${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_BUILD} $PRODUCT_HOME_DIR \
     && rm -rf \
-        /tmp/xap.zip \
-        /tmp/xap_unzip \
-        ${XAP_HOME_DIR}/{examples,tools}/ \
-        ${XAP_HOME_DIR}/START_HERE.htm \
-        ${XAP_HOME_DIR}/NOTICE.md \
+        /tmp/_product.zip \
+        /tmp/_product_unzip \
+        ${PRODUCT_HOME_DIR}/{examples,tools}/ \
+        ${PRODUCT_HOME_DIR}/START_HERE.htm \
+        ${PRODUCT_HOME_DIR}/NOTICE.md \
     && apt-get remove --purge -y $BUILD_PACKAGES \
     && rm -rf /var/lib/apt/lists/*
 
@@ -62,12 +63,12 @@ COPY lib-ext/* /opt/xap/lib/platform/ext/
 
 RUN chmod +x \
     /opt/xap/bin/setenv.sh \
-	/docker-entrypoint.sh \
-	/xap.sh
+    /docker-entrypoint.sh \
+    /xap.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-WORKDIR ${XAP_HOME_DIR}
+WORKDIR ${PRODUCT_HOME_DIR}
 
 EXPOSE 10000-10100 9104 7102 4174 8090 8091 8099
 
