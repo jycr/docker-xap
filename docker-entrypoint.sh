@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+echo "Start Apache HTTP Server"
+/etc/init.d/apache2 restart
+/etc/init.d/apache2 status
+
 if [[ -z "$XAP_LICENSE_KEY" ]]; then
 	echo "Please set 'XAP_LICENSE_KEY' environment variable"; exit 2
 fi

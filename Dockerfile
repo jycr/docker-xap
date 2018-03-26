@@ -5,15 +5,21 @@ ENV PRODUCT_NAME=insightedge
 ENV PRODUCT_VERSION 12.3.0
 ENV PRODUCT_BUILD ga-b19000
 ENV PRODUCT_HOME_DIR /opt/xap
+ENV JACOCO_HOME_DIR /opt/jacoco
 
 # Download Product URL
 ENV DOWNLOAD_URL "https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/${PRODUCT_NAME}/${PRODUCT_VERSION}/${PRODUCT_VERSION}/gigaspaces-${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_BUILD}.zip"
+
+ENV JACOCO_VERSION="0.8.1"
+ENV JACOCO_DOWNLOAD_URL="http://search.maven.org/remotecontent?filepath=org/jacoco/org.jacoco.agent/${JACOCO_VERSION}/org.jacoco.agent-${JACOCO_VERSION}-runtime.jar"
 
 ENV BUILD_PACKAGES=curl
 
 RUN set -ex \
     && apt-get update && apt-get install -y \
            $BUILD_PACKAGES \
+    && mkdir -p "$JACOCO_HOME_DIR" \
+    && curl -fSL "${JACOCO_DOWNLOAD_URL}" -o "$JACOCO_HOME_DIR/jacocoagent.jar" \
     && curl -fSL "${DOWNLOAD_URL}" -o /tmp/_product.zip \
     && unzip /tmp/_product.zip -d /tmp/_product_unzip \
     && mv /tmp/_product_unzip/gigaspaces-${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_BUILD} $PRODUCT_HOME_DIR \
@@ -36,11 +42,34 @@ ENV XAP_LOOKUP_GROUPS xap
 ENV XAP_WEBUI_OPTIONS "${EXT_JAVA_OPTIONS}"
 ENV WEBUI_PORT 8099
 
+RUN set -ex \
+    && apt-get update && apt-get install -y \
+        apache2 \
+        curl \
+        netcat-openbsd \
+        procps \
+        vim
+
+COPY ./xap-manager.conf /etc/apache2/sites-available/
+RUN a2enmod proxy_http \
+    && a2ensite xap-manager.conf \
+    && service apache2 stop
+
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY xap.sh /xap.sh
+COPY setenv.sh /opt/xap/bin/setenv.sh
+
+COPY lib-ext/* /opt/xap/lib/platform/ext/
+
+RUN chmod +x \
+    /opt/xap/bin/setenv.sh \
+    /docker-entrypoint.sh \
+    /xap.sh
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 WORKDIR ${PRODUCT_HOME_DIR}
 
-EXPOSE 10000-10100 9104 7102 4174 8099 8090
+EXPOSE 10000-10100 9104 7102 4174 8090 8091 8099
 
-CMD ["./bin/gs-agent.sh"]
+CMD ["/xap.sh"]
