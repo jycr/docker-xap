@@ -43,6 +43,7 @@ public class XapHelper {
 	}
 
 	public void deploy(ApplicationConfig applicationConfig) throws TimeoutException {
+		long start = System.currentTimeMillis();
 		LOG.info("Launch deploy of: {} (timeout: {})", applicationConfig.getName(), timeout);
 
 		Application dataApp = gsm.deploy(applicationConfig);
@@ -57,6 +58,8 @@ public class XapHelper {
 								+ timeout);
 			}
 		}
+		LOG.info("Application deployed in: {}", Duration.of(System.currentTimeMillis() - start, ChronoUnit.MILLIS));
+		LOG.info("Deployed PUs: {}", dataApp.getProcessingUnits().getNames().keySet());
 	}
 
 	public void undeploy(String applicationName) {
