@@ -7,38 +7,69 @@
 	<artifactId>xap-application-deployer</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
+	<properties>
+		<java.version>1.8</java.version>
+		<!-- Valeur du flag -release à passer à javac 9+ (JEP-247) -->
+		<release.version>8</release.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
+
+		<xap.version>12.3.0</xap.version>
+	</properties>
+
 	<dependencies>
 		<!-- include in XAP distrib -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.6</version>
-			<scope>provided</scope>
+			<version>1.7.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.6.6</version>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.7.12</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>1.7.12</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.2.3</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
 			<artifactId>xap-admin</artifactId>
-			<version>12.3.0</version>
+			<version>${xap.version}</version>
 			<scope>system</scope>
 			<systemPath>${env.XAP_HOME}/lib/platform/service-grid/xap-admin.jar</systemPath>
-
+			<exclusions>
+				<exclusion>
+					<artifactId>*</artifactId>
+					<groupId>*</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.gigaspaces</groupId>
+			<artifactId>xap-asm</artifactId>
+			<version>${xap.version}</version>
+			<scope>system</scope>
+			<systemPath>${env.XAP_HOME}/lib/required/xap-asm.jar</systemPath>
+			<exclusions>
+				<exclusion>
+					<artifactId>*</artifactId>
+					<groupId>*</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.gigaspaces</groupId>
+			<artifactId>xap-common</artifactId>
+			<version>${xap.version}</version>
+			<scope>system</scope>
+			<systemPath>${env.XAP_HOME}/lib/required/xap-common.jar</systemPath>
 			<exclusions>
 				<exclusion>
 					<artifactId>*</artifactId>
@@ -49,10 +80,9 @@
 		<dependency>
 			<groupId>com.gigaspaces</groupId>
 			<artifactId>xap-datagrid</artifactId>
-			<version>12.3.0</version>
+			<version>${xap.version}</version>
 			<scope>system</scope>
 			<systemPath>${env.XAP_HOME}/lib/required/xap-datagrid.jar</systemPath>
-
 			<exclusions>
 				<exclusion>
 					<artifactId>*</artifactId>
@@ -61,17 +91,6 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-
-	<properties>
-		<java.version>1.8</java.version>
-		<!-- Valeur du flag -release à passer à javac 9+ (JEP-247) -->
-		<release.version>8</release.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
-	</properties>
 
 	<build>
 		<plugins>
