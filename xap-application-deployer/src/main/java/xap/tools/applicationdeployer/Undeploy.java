@@ -40,7 +40,7 @@ public class Undeploy {
 		);
 
 		XapHelper xapHelper = new XapHelper.Builder()
-						.locatorName(System.getProperty(PROP_LOOKUP_LOCATOR, PROP_LOOKUP_LOCATOR_DEFAULT))
+						.locators(System.getProperty(PROP_LOOKUP_LOCATOR, PROP_LOOKUP_LOCATOR_DEFAULT))
 						.groups(System.getProperty(PROP_LOOKUP_GROUP, PROP_LOOKUP_GROUP_DEFAULT).split(","))
 						.timeout(Duration.parse(System.getProperty(PROP_TIMEOUT, PROP_TIMEOUT_DEFAULT)))
 						.userDetails(userDetails)

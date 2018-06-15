@@ -5,26 +5,32 @@ import org.openspaces.admin.AdminFactory;
 import org.openspaces.admin.application.Application;
 import org.openspaces.admin.application.config.ApplicationConfig;
 import org.openspaces.admin.gsm.GridServiceManager;
+import org.openspaces.admin.gsm.GridServiceManagers;
 import org.openspaces.admin.pu.ProcessingUnit;
 import org.openspaces.admin.pu.config.UserDetailsConfig;
+import org.openspaces.admin.pu.topology.ProcessingUnitConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
 public class XapHelper {
 	private static final Logger LOG = LoggerFactory.getLogger(XapHelper.class);
 
 	// By default : 1 minutes
 	private Duration timeout = Duration.of(1, ChronoUnit.MINUTES);
-	private final GridServiceManager gsm;
+	private final GridServiceManagers gsm;
 	private UserDetailsConfig userDetails;
 
-	public XapHelper(GridServiceManager gsm) {
+	public XapHelper(GridServiceManagers gsm) {
 		this.gsm = gsm;
 	}
 
@@ -40,13 +46,18 @@ public class XapHelper {
 
 	public void deploy(ApplicationConfig applicationConfig) throws TimeoutException {
 		long start = System.currentTimeMillis();
-		LOG.info("Launch deploy of: {} (timeout: {})", applicationConfig.getName(), timeout);
-
+		LOG.info("Launch deploy of: {} [{}] (timeout: {})"
+				, applicationConfig.getName()
+				, stream(applicationConfig.getProcessingUnits())
+						.map(ProcessingUnitConfigHolder::getName)
+						.collect(joining(","))
+				, timeout
+		);
 		Application dataApp = gsm.deploy(applicationConfig);
 
 		long end = System.currentTimeMillis() + timeout.toMillis();
 
-		LOG.info("waiting availability of PUs: ", dataApp.getProcessingUnits().getNames().keySet());
+		LOG.info("waiting deploy finishing ...");
 
 		for (ProcessingUnit pu : dataApp.getProcessingUnits()) {
 			long remaining = end - System.currentTimeMillis();
@@ -102,7 +113,7 @@ public class XapHelper {
 		private UserDetailsConfig userDetails;
 		private Duration timeout;
 
-		public Builder locatorName(String... locators) {
+		public Builder locators(String... locators) {
 			this.locators = locators;
 			return this;
 		}
@@ -123,8 +134,9 @@ public class XapHelper {
 		}
 
 		public XapHelper create() {
-			GridServiceManager gsm = createGsm();
-			LOG.info("XAP gsm: {}", gsm);
+			GridServiceManagers gsm = createGsm();
+			LOG.info("GridServiceManagers: {}", Arrays.toString(gsm.getManagers()));
+			LOG.info("GridServiceManagers: {}", Arrays.toString(gsm.getManagers()));
 			return new XapHelper(gsm) //
 					.setTimeout(timeout) //
 					.setUserDetails(userDetails) //
@@ -132,7 +144,7 @@ public class XapHelper {
 		}
 
 
-		public GridServiceManager createGsm() {
+		public GridServiceManagers createGsm() {
 			AdminFactory factory = new AdminFactory().useDaemonThreads(true);
 
 			if (locators != null) {
@@ -155,9 +167,17 @@ public class XapHelper {
 
 			Admin admin = factory.createAdmin();
 
-			LOG.info("XAP admin: {}", admin);
-
-			return admin.getGridServiceManagers().waitForAtLeastOne(5, TimeUnit.MINUTES);
+			LOG.info("Using Admin> locators: {} ; groups: {}"
+					, stream(admin.getLocators())
+							.map(l -> l.getHost() + ":" + l.getPort())
+							.collect(joining(","))
+					, stream(admin.getGroups())
+							.collect(joining(","))
+			);
+			return admin.getGridServiceManagers();
+//			GridServiceManager gsm = admin.getGridServiceManagers().waitForAtLeastOne(5, TimeUnit.MINUTES);
+//			LOG.info("Retrieved GridServiceManager> locators: {} ; groups: {}");
+//			return gsm;
 		}
 	}
 }
