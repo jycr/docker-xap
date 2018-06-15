@@ -19,11 +19,11 @@ public class Main {
 	private static final String PROP_CREDENTIAL_USERNAME = "credential.username";
 	private static final String PROP_CREDENTIAL_SECRET = "credential.password";
 
-	private static final String PROP_LOOKUP_GROUP = "lookup.group";
-	private static final String PROP_LOOKUP_GROUP_DEFAULT = "localhost";
+	private static final String PROP_LOOKUP_GROUPS = "lookup.groups";
+	private static final String PROP_LOOKUP_GROUPS_DEFAULT = "localhost";
 
-	private static final String PROP_LOOKUP_LOCATOR = "lookup.locator";
-	private static final String PROP_LOOKUP_LOCATOR_DEFAULT = "localhost";
+	private static final String PROP_LOOKUP_LOCATORS = "lookup.locators";
+	private static final String PROP_LOOKUP_LOCATORS_DEFAULT = "localhost";
 
 	private static final String PROP_LOG_LEVEL_ROOT = "log.level.root";
 	private static final String PROP_LOG_LEVEL_ROOT_DEFAULT = Level.INFO.getName();
@@ -33,8 +33,8 @@ public class Main {
 
 	private static final String USAGE = "args: <zipFile> (<propsFile>)"
 			+ "\nAvailable system properties:"
-			+ "\n -D" + PROP_LOOKUP_GROUP + " (comma separated multi-values. Default value: " + PROP_LOOKUP_GROUP_DEFAULT + ")"
-			+ "\n -D" + PROP_LOOKUP_LOCATOR + " (Default value: " + PROP_LOOKUP_LOCATOR_DEFAULT + ")"
+			+ "\n -D" + PROP_LOOKUP_GROUPS + " (comma separated multi-values. Default value: " + PROP_LOOKUP_GROUPS_DEFAULT + ")"
+			+ "\n -D" + PROP_LOOKUP_LOCATORS + " (comma separated multi-values. Default value: " + PROP_LOOKUP_LOCATORS_DEFAULT + ")"
 			+ "\n -D" + PROP_CREDENTIAL_USERNAME + " (URL Encoded value)"
 			+ "\n -D" + PROP_CREDENTIAL_SECRET + " (URL Encoded value)"
 			+ "\n -D" + PROP_LOG_LEVEL_ROOT + " (Default value: " + PROP_LOG_LEVEL_ROOT_DEFAULT + ")"
@@ -49,18 +49,18 @@ public class Main {
 		String logLevel = System.getProperty(PROP_LOG_LEVEL_ROOT, PROP_LOG_LEVEL_ROOT_DEFAULT);
 		setupLogger("", logLevel);
 
-		String locator = System.getProperty(PROP_LOOKUP_LOCATOR, PROP_LOOKUP_LOCATOR_DEFAULT);
-		String[] groups = System.getProperty(PROP_LOOKUP_GROUP, PROP_LOOKUP_GROUP_DEFAULT).split(",");
+		String[] locator = System.getProperty(PROP_LOOKUP_LOCATORS, PROP_LOOKUP_LOCATORS_DEFAULT).split(",");
+		String[] groups = System.getProperty(PROP_LOOKUP_GROUPS, PROP_LOOKUP_GROUPS_DEFAULT).split(",");
 		Duration timeout = Duration.parse(System.getProperty(PROP_TIMEOUT, PROP_TIMEOUT_DEFAULT));
 
 		LOG.info("ZIP: {}\n"
 						+ "\nOptions:"
-						+ "\n -D" + PROP_LOOKUP_GROUP + " : {}"
-						+ "\n -D" + PROP_LOOKUP_LOCATOR + " : {}"
+						+ "\n -D" + PROP_LOOKUP_GROUPS + " : {}"
+						+ "\n -D" + PROP_LOOKUP_LOCATORS + " : {}"
 						+ "\n -D" + PROP_LOG_LEVEL_ROOT + " : {}"
 						+ "\n -D" + PROP_TIMEOUT + " : {}"
 				, zipFile
-				, locator
+				, Arrays.toString(locator)
 				, Arrays.toString(groups)
 				, logLevel
 				, timeout
