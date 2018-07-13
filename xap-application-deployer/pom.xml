@@ -5,7 +5,7 @@
 
 	<groupId>org.github</groupId>
 	<artifactId>xap-application-deployer</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -17,7 +17,10 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
 
-		<xap.version>12.3.0</xap.version>
+		<!-- include in XAP distrib -->
+		<xap.version>12.3.1</xap.version>
+		<slf4j.version>1.6.6</slf4j.version>
+		<spring.version>4.3.17.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
@@ -25,7 +28,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.12</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
@@ -123,12 +126,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.12</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.7.12</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -138,32 +141,32 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>4.3.13.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>4.3.13.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>4.3.13.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>4.3.13.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>4.3.13.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>4.3.13.RELEASE</version>
+			<version>${spring.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -179,9 +182,6 @@
 						<manifest>
 							<mainClass>xap.tools.applicationdeployer.Main</mainClass>
 						</manifest>
-						<manifestEntries>
-							<Class-Path><![CDATA[../lib/platform/service-grid/xap-admin.jar ../lib/required/xap-openspaces.jar ../lib/required/xap-datagrid.jar ../lib/required/xap-common.jar ../lib/required/xap-trove.jar ../lib/required/xap-asm.jar ../lib/platform/logger/slf4j-api-1.6.6.jar ../lib/platform/logger/slf4j-jdk14-1.7.12.jar ../lib/required/commons-logging-1.1.3.jar ../lib/platform/service-grid/xap-service-grid.jar ../lib/required/spring-core-4.3.13.RELEASE.jar ../lib/required/spring-beans-4.3.13.RELEASE.jar ../lib/required/spring-context-4.3.13.RELEASE.jar ../lib/required/spring-context-support-4.3.13.RELEASE.jar ../lib/required/spring-aop-4.3.13.RELEASE.jar ../lib/required/spring-expression-4.3.13.RELEASE.jar]]></Class-Path>
-						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>

@@ -47,11 +47,13 @@ public class XapHelper {
 	public void deploy(ApplicationConfig applicationConfig) throws TimeoutException {
 		long start = System.currentTimeMillis();
 		LOG.info("Launch deploy of: {} [{}] (timeout: {})"
-				, applicationConfig.getName()
-				, stream(applicationConfig.getProcessingUnits())
-						.map(ProcessingUnitConfigHolder::getName)
-						.collect(joining(","))
-				, timeout
+				, new Object[]{
+					applicationConfig.getName()
+					, stream(applicationConfig.getProcessingUnits())
+							.map(ProcessingUnitConfigHolder::getName)
+							.collect(joining(","))
+					, timeout
+				}
 		);
 		Application dataApp = gsm.deploy(applicationConfig);
 

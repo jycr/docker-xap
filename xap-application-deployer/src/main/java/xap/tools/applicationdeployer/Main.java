@@ -61,11 +61,13 @@ public class Main {
 						+ "\n -D" + PROP_LOOKUP_LOCATORS + " : {}"
 						+ "\n -D" + PROP_LOG_LEVEL_ROOT + " : {}"
 						+ "\n -D" + PROP_TIMEOUT + " : {}"
-				, zipFile
-				, Arrays.toString(locators)
-				, Arrays.toString(groups)
-				, logLevel
-				, timeout
+				, new Object[]{
+						zipFile
+						, Arrays.toString(locators)
+						, Arrays.toString(groups)
+						, logLevel
+						, timeout
+				}
 		);
 
 		UserDetailsConfig userDetails = UserDetailsHelper.createFromUrlEncodedValue(
