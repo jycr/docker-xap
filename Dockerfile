@@ -1,46 +1,51 @@
-FROM openjdk:8-jdk-slim
-# JDK is needed to execute GS Webui
+# FROM scratch
+# FROM debian:stretch
+# FROM buildpack-deps:stretch-curl
+# FROM buildpack-deps:stretch-scm
+# FROM openjdk:8
+FROM gigaspaces/xap-enterprise:12.3.1
 
-ENV PRODUCT_NAME=insightedge
-ENV PRODUCT_VERSION 12.3.0
-ENV PRODUCT_BUILD ga-b19000
-ENV PRODUCT_HOME_DIR /opt/xap
+ARG BUILD_PACKAGES="\
+    curl \
+"
 
-# Download Product URL
-ENV DOWNLOAD_URL "https://gigaspaces-releases-eu.s3.amazonaws.com/com/gigaspaces/${PRODUCT_NAME}/${PRODUCT_VERSION}/${PRODUCT_VERSION}/gigaspaces-${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_BUILD}.zip"
+ARG RUN_PACKAGES="\
+"
 
-ENV BUILD_PACKAGES=curl
+ARG DEPENDENCIES="\
+    com/ibm/mq/com.ibm.mq.allclient/9.0.5.0/com.ibm.mq.allclient-9.0.5.0.jar \
+    javax/jms/javax.jms-api/2.0.1/javax.jms-api-2.0.1.jar \
+    com/sun/messaging/mq/fscontext/4.6-b01/fscontext-4.6-b01.jar \
+"
+
+ARG CLASSPATH_XAP=/opt/gigaspaces/lib/platform/ext
+ARG CLASSPATH_PU=/opt/gigaspaces/lib/optional/pu-common
+ARG GS_TOOLS_DIR=/opt/gigaspaces/tools
 
 RUN set -ex \
-    && apt-get update && apt-get install -y \
-           $BUILD_PACKAGES \
-    && curl -fSL "${DOWNLOAD_URL}" -o /tmp/_product.zip \
-    && unzip /tmp/_product.zip -d /tmp/_product_unzip \
-    && mv /tmp/_product_unzip/gigaspaces-${PRODUCT_NAME}-${PRODUCT_VERSION}-${PRODUCT_BUILD} $PRODUCT_HOME_DIR \
-    && rm -rf \
-        /tmp/_product.zip \
-        /tmp/_product_unzip \
-        ${PRODUCT_HOME_DIR}/{examples,tools}/ \
-        ${PRODUCT_HOME_DIR}/START_HERE.htm \
-        ${PRODUCT_HOME_DIR}/NOTICE.md \
-    && apt-get remove --purge -y $BUILD_PACKAGES \
+    && mkdir -p \
+        "${GS_TOOLS_DIR}" \
+        "${CLASSPATH_XAP}" \
+        "${CLASSPATH_PU}"
+
+COPY ./lib-ext/* ${CLASSPATH_XAP}/
+COPY ./xap-application-deployer/target/xap-application-deployer-*.jar "${GS_TOOLS_DIR}/xap-application-deployer.jar"
+COPY ./xap-application-deployer/xap-application-deployer.sh "${GS_TOOLS_DIR}/"
+
+RUN set -ex \
+    && DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install -y \
+        $BUILD_PACKAGES \
+        $RUN_PACKAGES \
+    && for ARTIFACT in ${DEPENDENCIES}; do \
+           curl "http://search.maven.org/remotecontent?filepath=${ARTIFACT}" > "${CLASSPATH_PU}/$(basename ${ARTIFACT})" ; \
+       done \
+    && apt-get remove --purge -y \
+        $BUILD_PACKAGES \
+    && chmod +x "${GS_TOOLS_DIR}/xap-application-deployer.sh" \
     && rm -rf /var/lib/apt/lists/*
-
-ENV XAP_NIC_ADDRESS "#eth0:ip#"
-ENV EXT_JAVA_OPTIONS "-Dcom.gs.multicast.enabled=false -Dcom.gs.multicast.discoveryPort=4174 -Dcom.gs.transport_protocol.lrmi.bind-port=10000-10100 -Dcom.gigaspaces.start.httpPort=9104 -Dcom.gigaspaces.system.registryPort=7102"
-ENV XAP_GSM_OPTIONS "-Xms128m -Xmx128m"
-ENV XAP_GSC_OPTIONS "-Xms128m -Xmx128m"
-ENV XAP_LOOKUP_GROUPS xap
-
-# GS webui
-ENV XAP_WEBUI_OPTIONS "${EXT_JAVA_OPTIONS}"
-ENV WEBUI_PORT 8099
-
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
-WORKDIR ${PRODUCT_HOME_DIR}
-
-EXPOSE 10000-10100 9104 7102 4174 8099 8090
-
-CMD ["./bin/gs-agent.sh"]
+    
+VOLUME ["${GS_TOOLS_DIR}"]
+VOLUME ["${CLASSPATH_XAP}"]
+VOLUME ["${CLASSPATH_PU}"]
