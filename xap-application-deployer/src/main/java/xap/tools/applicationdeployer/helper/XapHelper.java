@@ -4,7 +4,6 @@ import org.openspaces.admin.Admin;
 import org.openspaces.admin.AdminFactory;
 import org.openspaces.admin.application.Application;
 import org.openspaces.admin.application.config.ApplicationConfig;
-import org.openspaces.admin.gsm.GridServiceManager;
 import org.openspaces.admin.gsm.GridServiceManagers;
 import org.openspaces.admin.pu.ProcessingUnit;
 import org.openspaces.admin.pu.config.UserDetailsConfig;
@@ -15,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -23,7 +24,44 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
 public class XapHelper {
+
 	private static final Logger LOG = LoggerFactory.getLogger(XapHelper.class);
+
+	public static void awaitDeployment(ApplicationConfig applicationConfig, Application dataApp, long deploymentStartTime, Duration timeout) throws TimeoutException {
+		long timeoutTime = deploymentStartTime + timeout.toMillis();
+
+		final String applicationConfigName = applicationConfig.getName();
+		LOG.info("Waiting for application {} to deploy ...", applicationConfigName);
+
+		Set<String> deployedPuNames = new LinkedHashSet<>();
+
+		for (ProcessingUnit pu : dataApp.getProcessingUnits().getProcessingUnits()) {
+			final int plannedNumberOfInstances = pu.getPlannedNumberOfInstances();
+			String puName = pu.getName();
+			LOG.info("Waiting for PU {} to deploy {} instances ...", puName, plannedNumberOfInstances);
+
+			long remainingDelayUntilTimeout = timeoutTime - System.currentTimeMillis();
+			if (remainingDelayUntilTimeout < 0L) {
+				throw new TimeoutException("Application " + applicationConfigName + " deployment timed out after " + timeout);
+			}
+			boolean finished = pu.waitFor(plannedNumberOfInstances, remainingDelayUntilTimeout, TimeUnit.MILLISECONDS);
+
+			final int currentInstancesCount = pu.getInstances().length;
+			LOG.info("PU {} now has {} running instances", puName, currentInstancesCount);
+
+			if (!finished) {
+				throw new TimeoutException("Application " + applicationConfigName + " deployment timed out after " + timeout);
+			}
+			deployedPuNames.add(puName);
+			LOG.info("PU {} deployed successfully", puName);
+		}
+
+		long appDeploymentEndTime = System.currentTimeMillis();
+		long appDeploymentDuration = appDeploymentEndTime - deploymentStartTime;
+
+		LOG.info("Deployed PUs: {}", deployedPuNames);
+		LOG.info("Application deployed in: {} ms", appDeploymentDuration);
+	}
 
 	// By default : 1 minutes
 	private Duration timeout = Duration.of(1, ChronoUnit.MINUTES);
@@ -45,33 +83,27 @@ public class XapHelper {
 	}
 
 	public void deploy(ApplicationConfig applicationConfig) throws TimeoutException {
-		long start = System.currentTimeMillis();
-		LOG.info("Launch deploy of: {} [{}] (timeout: {})"
+		LOG.info("Launch deployment of: {} [{}] (timeout: {})"
 				, new Object[]{
-					applicationConfig.getName()
-					, stream(applicationConfig.getProcessingUnits())
-							.map(ProcessingUnitConfigHolder::getName)
-							.collect(joining(","))
-					, timeout
+						applicationConfig.getName()
+						, stream(applicationConfig.getProcessingUnits())
+						.map(ProcessingUnitConfigHolder::getName)
+						.collect(joining(","))
+						, timeout
 				}
 		);
+
+		long deployRequestStartTime = System.currentTimeMillis();
 		Application dataApp = gsm.deploy(applicationConfig);
+		long deployRequestEndTime = System.currentTimeMillis() + timeout.toMillis();
+		long deployRequestDuration = deployRequestEndTime - deployRequestStartTime;
+		LOG.info("Requested deployment of application : duration = {} ms", deployRequestDuration);
 
-		long end = System.currentTimeMillis() + timeout.toMillis();
+		long deploymentStartTime = deployRequestEndTime;
 
-		LOG.info("waiting deploy finishing ...");
-
-		for (ProcessingUnit pu : dataApp.getProcessingUnits()) {
-			long remaining = end - System.currentTimeMillis();
-			if ((remaining < 0L) ||
-					(!pu.waitFor(pu.getPlannedNumberOfInstances(), remaining, TimeUnit.MILLISECONDS))) {
-				throw new TimeoutException("Application " + applicationConfig.getName() + " deployment timed out after "
-						+ timeout);
-			}
-		}
-		LOG.info("Application deployed in: {}", Duration.of(System.currentTimeMillis() - start, ChronoUnit.MILLIS));
-		LOG.info("Deployed PUs: {}", dataApp.getProcessingUnits().getNames().keySet());
+		awaitDeployment(applicationConfig, dataApp, deploymentStartTime, timeout);
 	}
+
 
 	public void undeploy(String applicationName) {
 		LOG.info("Launch undeploy of: {} (timeout: {})", applicationName, timeout);
