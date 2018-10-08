@@ -1,6 +1,3 @@
 .idea/
 *.iml
-/xap-application-deployer/target/classes/
-/xap-application-deployer/target/maven-archiver/
-/xap-application-deployer/target/maven-status/
-
+/xap-application-deployer/target/
