@@ -1,3 +1,22 @@
+FROM gigaspaces/xap-enterprise:12.3.1 as LIB
+
+FROM maven:3.5-jdk-8-alpine as BUILD
+
+ENV XAP_HOME=/opt/gigaspaces
+
+RUN mkdir -p /opt
+COPY --from=LIB "$XAP_HOME" "$XAP_HOME"
+
+COPY ./xap-application-deployer /tmp/xap-application-deployer/
+RUN \
+  chmod +x /tmp/xap-application-deployer/setupEnvProxy.sh \
+  && /tmp/xap-application-deployer/setupEnvProxy.sh \
+  && mvn -f /tmp/xap-application-deployer/pom.xml clean package
+
+
+
+
+
 # FROM scratch
 # FROM debian:stretch
 # FROM buildpack-deps:stretch-curl
@@ -29,8 +48,9 @@ RUN set -ex \
         "${CLASSPATH_PU}"
 
 COPY ./lib-ext/* ${CLASSPATH_XAP}/
-COPY ./xap-application-deployer/target/xap-application-deployer-*.jar "${GS_TOOLS_DIR}/xap-application-deployer.jar"
-COPY ./xap-application-deployer/xap-application-deployer.sh "${GS_TOOLS_DIR}/"
+
+COPY --from=BUILD /tmp/xap-application-deployer/target/xap-application-deployer-*.jar "${GS_TOOLS_DIR}/xap-application-deployer.jar"
+COPY --from=BUILD /tmp/xap-application-deployer/xap-application-deployer.sh "${GS_TOOLS_DIR}/"
 
 RUN set -ex \
     && DEBIAN_FRONTEND=noninteractive \
