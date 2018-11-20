@@ -66,5 +66,19 @@ RUN mkdir -p /usr/local/
 ENV JACOCO_HOME_DIR /usr/local/jacoco
 ENV JACOCO_VERSION "0.8.1"
 ENV JACOCO_DOWNLOAD_URL "http://search.maven.org/remotecontent?filepath=org/jacoco/org.jacoco.agent/${JACOCO_VERSION}/org.jacoco.agent-${JACOCO_VERSION}-runtime.jar"
-RUN mkdir -p "$JACOCO_HOME_DIR" \
+RUN mkdir -p "${JACOCO_HOME_DIR}" \
   && curl -fSL "${JACOCO_DOWNLOAD_URL}" -o "$JACOCO_HOME_DIR/jacocoagent.jar"
+
+
+# Add Yourkit (resources: https://www.yourkit.com/docs/java/help/docker.jsp )
+## To activate, just add an environment variable:
+## XAP_GSC_OPTIONS=-agentpath:/usr/local/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=listen=all
+ENV YOURKIT_HOME_DIR /usr/local/YourKit-JavaProfiler
+ENV YOURKIT_VERSION "2018.04-docker"
+ENV YOURKIT_DOWNLOAD_URL "https://www.yourkit.com/download/docker/YourKit-JavaProfiler-${YOURKIT_VERSION}.zip"
+RUN mkdir -p "${YOURKIT_HOME_DIR}" \
+  && curl "${YOURKIT_DOWNLOAD_URL}" --output /tmp/YourKit-JavaProfiler.zip \
+  && unzip /tmp/YourKit-JavaProfiler.zip -d /tmp \
+  && mv /tmp/YourKit-JavaProfiler-*/* "${YOURKIT_HOME_DIR}/" \
+  && rm -rf /tmp/YourKit-*
+EXPOSE 10001-10009
