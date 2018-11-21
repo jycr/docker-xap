@@ -24,13 +24,6 @@ RUN \
 # FROM openjdk:8
 FROM gigaspaces/xap-enterprise:12.3
 
-ARG BUILD_PACKAGES="\
-    curl \
-"
-
-ARG RUN_PACKAGES="\
-"
-
 ARG DEPENDENCIES="\
     com/ibm/mq/com.ibm.mq.allclient/9.0.5.0/com.ibm.mq.allclient-9.0.5.0.jar \
     javax/jms/javax.jms-api/2.0.1/javax.jms-api-2.0.1.jar \
@@ -56,16 +49,22 @@ RUN set -ex \
     && DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get install -y \
-        $BUILD_PACKAGES \
-        $RUN_PACKAGES \
+        curl \
     && for ARTIFACT in ${DEPENDENCIES}; do \
            curl "http://search.maven.org/remotecontent?filepath=${ARTIFACT}" > "${CLASSPATH_PU}/$(basename ${ARTIFACT})" ; \
        done \
-    && apt-get remove --purge -y \
-        $BUILD_PACKAGES \
     && chmod +x "${GS_TOOLS_DIR}/xap-application-deployer.sh" \
     && rm -rf /var/lib/apt/lists/*
     
 VOLUME ["${GS_TOOLS_DIR}"]
 VOLUME ["${CLASSPATH_XAP}"]
 VOLUME ["${CLASSPATH_PU}"]
+
+RUN mkdir -p /usr/local/
+
+# Add JACOCO
+ENV JACOCO_HOME_DIR /usr/local/jacoco
+ENV JACOCO_VERSION "0.8.1"
+ENV JACOCO_DOWNLOAD_URL "http://search.maven.org/remotecontent?filepath=org/jacoco/org.jacoco.agent/${JACOCO_VERSION}/org.jacoco.agent-${JACOCO_VERSION}-runtime.jar"
+RUN mkdir -p "$JACOCO_HOME_DIR" \
+  && curl -fSL "${JACOCO_DOWNLOAD_URL}" -o "$JACOCO_HOME_DIR/jacocoagent.jar"
