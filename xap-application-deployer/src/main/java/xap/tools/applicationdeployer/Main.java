@@ -63,8 +63,8 @@ public class Main {
 						+ "\n -D" + PROP_TIMEOUT + " : {}"
 				, new Object[]{
 						zipFile
-						, Arrays.toString(locators)
 						, Arrays.toString(groups)
+						, Arrays.toString(locators)
 						, logLevel
 						, timeout
 				}
