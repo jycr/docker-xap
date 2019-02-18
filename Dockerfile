@@ -33,13 +33,16 @@ ARG DEPENDENCIES="\
 ARG CLASSPATH_XAP=/opt/gigaspaces/lib/platform/ext
 ARG CLASSPATH_PU=/opt/gigaspaces/lib/optional/pu-common
 ARG GS_TOOLS_DIR=/opt/gigaspaces/tools
+ARG GS_CONF_DIR=/opt/gigaspaces/config/gsa
 
 RUN set -ex \
     && mkdir -p \
         "${GS_TOOLS_DIR}" \
         "${CLASSPATH_XAP}" \
+        "${GS_CONF_DIR}" \
         "${CLASSPATH_PU}"
 
+COPY ./conf/* ${GS_CONF_DIR}/
 COPY ./lib-ext/* ${CLASSPATH_XAP}/
 
 COPY --from=BUILD /tmp/xap-application-deployer/target/xap-application-deployer-*.jar "${GS_TOOLS_DIR}/xap-application-deployer.jar"
@@ -59,6 +62,7 @@ RUN set -ex \
 VOLUME ["${GS_TOOLS_DIR}"]
 VOLUME ["${CLASSPATH_XAP}"]
 VOLUME ["${CLASSPATH_PU}"]
+VOLUME ["${GS_CONF_DIR}"]
 
 RUN mkdir -p /usr/local/
 
@@ -81,4 +85,5 @@ RUN mkdir -p "${YOURKIT_HOME_DIR}" \
   && unzip /tmp/YourKit-JavaProfiler.zip -d /tmp \
   && mv /tmp/YourKit-JavaProfiler-*/* "${YOURKIT_HOME_DIR}/" \
   && rm -rf /tmp/YourKit-*
-EXPOSE 10001-10009
+EXPOSE 10001-10009 20000-20001
+CMD ["host", "run-agent", "--auto", "--custom", "gsc_1=1", "--custom", "gsc_2=1"]
