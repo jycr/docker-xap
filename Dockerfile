@@ -1,28 +1,7 @@
-FROM gigaspaces/xap-enterprise:14.0.1 as LIB
-
-FROM maven:3.5-jdk-8-alpine as BUILD
-
-ENV XAP_HOME=/opt/gigaspaces
-
-RUN mkdir -p /opt
-COPY --from=LIB "$XAP_HOME" "$XAP_HOME"
-
-COPY ./xap-application-deployer /tmp/xap-application-deployer/
-RUN \
-  chmod +x /tmp/xap-application-deployer/setupEnvProxy.sh \
-  && /tmp/xap-application-deployer/setupEnvProxy.sh \
-  && mvn -f /tmp/xap-application-deployer/pom.xml clean package
-
-
-
-
-
 # FROM scratch
-# FROM debian:stretch
-# FROM buildpack-deps:stretch-curl
-# FROM buildpack-deps:stretch-scm
-# FROM openjdk:8
-FROM gigaspaces/xap-enterprise:14.0.1
+# FROM alpine:3.9
+# FROM openjdk:8-alpine
+FROM gigaspaces/xap-enterprise:14.2
 
 ARG DEPENDENCIES="\
     com/ibm/mq/com.ibm.mq.allclient/9.0.5.0/com.ibm.mq.allclient-9.0.5.0.jar \
@@ -32,12 +11,10 @@ ARG DEPENDENCIES="\
 
 ARG CLASSPATH_XAP=/opt/gigaspaces/lib/platform/ext
 ARG CLASSPATH_PU=/opt/gigaspaces/lib/optional/pu-common
-ARG GS_TOOLS_DIR=/opt/gigaspaces/tools
 ARG GS_CONF_DIR=/opt/gigaspaces/config/gsa
 
 RUN set -ex \
     && mkdir -p \
-        "${GS_TOOLS_DIR}" \
         "${CLASSPATH_XAP}" \
         "${GS_CONF_DIR}" \
         "${CLASSPATH_PU}"
@@ -45,17 +22,12 @@ RUN set -ex \
 COPY ./conf/* ${GS_CONF_DIR}/
 COPY ./lib-ext/* ${CLASSPATH_XAP}/
 
-COPY --from=BUILD /tmp/xap-application-deployer/target/xap-application-deployer-*.jar "${GS_TOOLS_DIR}/xap-application-deployer.jar"
-COPY --from=BUILD /tmp/xap-application-deployer/xap-application-deployer.sh "${GS_TOOLS_DIR}/"
-
 RUN set -ex \
     && for ARTIFACT in ${DEPENDENCIES}; do \
            wget "http://search.maven.org/remotecontent?filepath=${ARTIFACT}" -O "${CLASSPATH_PU}/$(basename ${ARTIFACT})" ; \
        done \
-    && chmod +x "${GS_TOOLS_DIR}/xap-application-deployer.sh" \
     && rm -rf /var/lib/apt/lists/*
     
-VOLUME ["${GS_TOOLS_DIR}"]
 VOLUME ["${CLASSPATH_XAP}"]
 VOLUME ["${CLASSPATH_PU}"]
 VOLUME ["${GS_CONF_DIR}"]
@@ -76,10 +48,13 @@ RUN mkdir -p "${JACOCO_HOME_DIR}" \
 ENV YOURKIT_HOME_DIR /usr/local/YourKit-JavaProfiler
 ENV YOURKIT_VERSION "2018.04-docker"
 ENV YOURKIT_DOWNLOAD_URL "https://www.yourkit.com/download/docker/YourKit-JavaProfiler-${YOURKIT_VERSION}.zip"
+RUN apk add --update gcompat
 RUN mkdir -p "${YOURKIT_HOME_DIR}" \
   && wget "${YOURKIT_DOWNLOAD_URL}" -O /tmp/YourKit-JavaProfiler.zip \
   && unzip /tmp/YourKit-JavaProfiler.zip -d /tmp \
   && mv /tmp/YourKit-JavaProfiler-*/* "${YOURKIT_HOME_DIR}/" \
   && rm -rf /tmp/YourKit-*
+
 EXPOSE 10001-10009 20000-20001
+
 CMD ["host", "run-agent", "--auto", "--custom", "gsc_1=1", "--custom", "gsc_2=1"]
