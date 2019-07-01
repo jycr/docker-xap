@@ -1,7 +1,7 @@
 # FROM scratch
 # FROM alpine:3.9
 # FROM openjdk:8-alpine
-FROM gigaspaces/xap-enterprise:14.2
+FROM gigaspaces/xap-enterprise:14.5
 
 ARG DEPENDENCIES="\
     com/ibm/mq/com.ibm.mq.allclient/9.0.5.0/com.ibm.mq.allclient-9.0.5.0.jar \
