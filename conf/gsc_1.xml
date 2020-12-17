@@ -2,7 +2,7 @@
     <script enable="true" work-dir="${com.gs.home}/bin"
             windows="${com.gs.home}\bin\gs.bat" unix="${com.gs.home}/bin/gs.sh">
         <argument>services=GSC</argument>
-        <environment name="XAP_COMPONENT_OPTIONS">${XAP_GSC_OPTIONS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20000</environment>
+        <environment name="GS_GSC_OPTIONS">${XAP_GSC_OPTIONS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20000</environment>
     </script>
     <vm enable="true" work-dir="${com.gs.home}/bin" main-class="com.gigaspaces.start.SystemBoot">
         <input-argument></input-argument>
